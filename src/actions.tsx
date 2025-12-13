@@ -21,9 +21,9 @@ function OpenInArcAction(props: { tabOrUrl: Tab | string }) {
       if (typeof props.tabOrUrl === "string") {
         await open(props.tabOrUrl, "company.thebrowser.Browser");
       } else {
-        await closeMainWindow();
         try {
           await selectTab(props.tabOrUrl);
+          await closeMainWindow();
         } catch (e) {
           if (props.tabOrUrl.url) {
             await open(props.tabOrUrl.url, "company.thebrowser.Browser");

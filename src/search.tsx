@@ -56,14 +56,22 @@ function SearchArc(props: LaunchProps) {
 function TabListSections(props: { tabs?: Tab[]; mutateTabs: MutatePromise<Tab[] | undefined>; searchText: string }) {
   const orderedLocations = getOrderedLocations();
   const groupedTabs = chain(props.tabs)
-    .filter(
-      (tab) =>
-        tab.title.toLowerCase().includes(props.searchText.toLowerCase()) ||
-        tab.url.toLowerCase().includes(props.searchText.toLowerCase()),
-    )
+    .filter((tab) => {
+      const terms = props.searchText.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      if (terms.length === 0) return true;
+
+      const title = tab.title.toLowerCase();
+      const url = tab.url.toLowerCase();
+      const path = tab.path?.toLowerCase() || "";
+
+      return terms.every((term) => title.includes(term) || url.includes(term) || path.includes(term));
+    })
     .groupBy((tab) => tab.location)
     .value();
 
+    console.log('--------------------------------');
+    console.log(props.tabs);
+    console.log('--------------------------------');
   return (
     <>
       {orderedLocations

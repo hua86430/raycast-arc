@@ -1,9 +1,10 @@
 import { runAppleScript } from "@raycast/utils";
+import { getUrlToPathsMap, normalizeUrl } from "./sidebar-reader";
 import { Space, Tab } from "./types";
 import { findSpaceInSpaces } from "./utils";
 
 // Tabs
-export async function getTabs() {
+export async function getTabs(): Promise<Tab[] | undefined> {
   const response = await runAppleScript(`
     on escape_value(this_text)
       set AppleScript's text item delimiters to "\\\\"
@@ -50,7 +51,20 @@ export async function getTabs() {
     return "[\\n" & _output & "\\n]"
   `);
 
-  return response ? (JSON.parse(response) as Tab[]) : undefined;
+  if (!response) return undefined;
+
+  const tabs = JSON.parse(response) as Tab[];
+  const urlToPaths = getUrlToPathsMap();
+
+  return tabs.map((t) => {
+    const u = normalizeUrl(t.url);
+    const paths = urlToPaths.get(u) ?? [];
+    return {
+      ...t,
+      path: paths[0] ?? "",
+      paths,
+    };
+  });
 }
 
 export async function findTab(url: string) {
@@ -287,7 +301,7 @@ export async function getVersion() {
   return response;
 }
 
-export async function getTabsInSpace(spaceId: string) {
+export async function getTabsInSpace(spaceId: string): Promise<Tab[] | undefined> {
   const response = await runAppleScript(`
     on escape_value(this_text)
       set AppleScript's text item delimiters to "\\\\"
@@ -340,5 +354,18 @@ export async function getTabsInSpace(spaceId: string) {
     return "[\\n" & _output & "\\n]"
   `);
 
-  return response ? (JSON.parse(response) as Tab[]) : undefined;
+  if (!response) return undefined;
+
+  const tabs = JSON.parse(response) as Tab[];
+  const urlToPaths = getUrlToPathsMap();
+
+  return tabs.map((t) => {
+    const u = normalizeUrl(t.url);
+    const paths = urlToPaths.get(u) ?? [];
+    return {
+      ...t,
+      path: paths[0] ?? "",
+      paths,
+    };
+  });
 }

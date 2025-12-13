@@ -11,6 +11,8 @@ export type Tab = {
   url: string;
   title: string;
   location: TabLocation;
+  path?: string;
+  paths?: string[];
 };
 
 export type TabLocation = "topApp" | "pinned" | "unpinned";

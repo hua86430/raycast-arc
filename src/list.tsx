@@ -125,6 +125,7 @@ export function TabListItem(props: { tab: Tab; searchText: string; mutate: Mutat
         value: getDomain(props.tab.url),
         tooltip: props.tab.url,
       }}
+      accessories={props.tab.path ? [{ text: props.tab.path }] : undefined}
       keywords={[props.tab.url]} // Add this line to include URL in searchable content
       actions={
         <ActionPanel>
