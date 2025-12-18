@@ -31,7 +31,9 @@ function SearchDownloads(props: LaunchProps) {
         title="Downloads"
         subtitle={data ? `${data.length} ${data.length === 1 ? "entry" : "entries"}` : undefined}
       >
-        {data?.map((download: Download) => <DownloadListItem key={download.id} download={download} />)}
+        {data?.map((download: Download) => (
+          <DownloadListItem key={download.id} download={download} />
+        ))}
       </List.Section>
     </List>
   );

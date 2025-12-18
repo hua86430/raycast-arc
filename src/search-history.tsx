@@ -24,7 +24,9 @@ function SearchHistory(props: LaunchProps) {
         title="History"
         subtitle={data ? `${data.length} ${data.length === 1 ? "entry" : "entries"}` : undefined}
       >
-        {data?.map((entry) => <HistoryEntryListItem key={entry.id} entry={entry} searchText={searchText} />)}
+        {data?.map((entry) => (
+          <HistoryEntryListItem key={entry.id} entry={entry} searchText={searchText} />
+        ))}
       </List.Section>
     </List>
   );

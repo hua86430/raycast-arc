@@ -17,10 +17,7 @@ export function normalizeUrl(u: string) {
 }
 
 function loadStorableSidebar(): any {
-  const p = path.join(
-    os.homedir(),
-    "Library/Application Support/Arc/StorableSidebar.json",
-  );
+  const p = path.join(os.homedir(), "Library/Application Support/Arc/StorableSidebar.json");
   try {
     return JSON.parse(fs.readFileSync(p, "utf8"));
   } catch (e) {
@@ -54,14 +51,10 @@ function buildNodeIndex(storableSidebarJson: any): Record<string, SidebarNode> {
     // 1) 先嘗試把 obj 當成 pair-map 解析
     const entries = toEntries(obj);
     for (const { key, payload } of entries) {
-      const value: SidebarNode | undefined =
-        payload?.value ?? payload?.["value"] ?? payload;
+      const value: SidebarNode | undefined = payload?.value ?? payload?.["value"] ?? payload;
       if (value && typeof value === "object") {
         // 判斷是否像一個節點：有 title / parentID / data.tab.savedURL 任一即可
-        const looksLikeNode =
-          "title" in value ||
-          "parentID" in value ||
-          (value as any)?.data?.tab?.savedURL;
+        const looksLikeNode = "title" in value || "parentID" in value || (value as any)?.data?.tab?.savedURL;
 
         if (looksLikeNode) {
           index[key] = value;
@@ -124,4 +117,3 @@ export function getUrlToPathsMap() {
   const nodeIndex = buildNodeIndex(storable);
   return buildUrlToPaths(nodeIndex);
 }
-

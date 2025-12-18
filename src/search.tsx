@@ -69,9 +69,9 @@ function TabListSections(props: { tabs?: Tab[]; mutateTabs: MutatePromise<Tab[] 
     .groupBy((tab) => tab.location)
     .value();
 
-    console.log('--------------------------------');
-    console.log(props.tabs);
-    console.log('--------------------------------');
+  console.log("--------------------------------");
+  console.log(props.tabs);
+  console.log("--------------------------------");
   return (
     <>
       {orderedLocations

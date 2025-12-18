@@ -130,7 +130,9 @@ export function SearchTabsBase(props: SearchTabsBaseProps) {
           const tabs = filteredGroupedTabs[location];
           return (
             <List.Section key={location} title={getLocationTitle(location)} subtitle={getNumberOfTabs(tabs)}>
-              {tabs?.map((tab) => <TabListItem key={getKey(tab)} tab={tab} searchText={searchText} mutate={mutate} />)}
+              {tabs?.map((tab) => (
+                <TabListItem key={getKey(tab)} tab={tab} searchText={searchText} mutate={mutate} />
+              ))}
             </List.Section>
           );
         })}
