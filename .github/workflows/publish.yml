@@ -28,7 +28,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Generate package-lock.json
-        run: npm install --package-lock-only --legacy-peer-deps
+        run: npm install --package-lock-only --legacy-peer-deps --ignore-scripts
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
