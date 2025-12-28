@@ -2,42 +2,47 @@ name: Publish Release
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - '**'
+
 
 permissions:
   contents: write
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
-
-      - name: Run Lint
-        run: pnpm run lint
-
   build:
-    needs: lint
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
+      - name: Check Lint Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const sha = context.sha;
+            console.log(`Checking lint status for commit ${sha}...`);
+            
+            // List check runs for the 'lint' job
+            const { data: { check_runs } } = await github.rest.checks.listForRef({
+              owner,
+              repo,
+              ref: sha,
+              check_name: 'lint',
+              filter: 'latest' // We only care about the latest run
+            });
+            
+            const lintCheck = check_runs.find(run => run.name === 'lint');
+            
+            if (!lintCheck) {
+              // It's possible the lint workflow hasn't started yet or hasn't reported a check run.
+              core.setFailed('No lint check found for this commit. Please ensure the "Lint" workflow has run.');
+              return;
+            }
+            
+            if (lintCheck.conclusion !== 'success') {
+              core.setFailed(`The latest lint check is not successful. Status: ${lintCheck.status}, Conclusion: ${lintCheck.conclusion}. Please fix lint errors before publishing.`);
+            } else {
+              console.log('Lint check passed. Proceeding with publish.');
+            }
+
       - name: Checkout code
         uses: actions/checkout@v4
 
