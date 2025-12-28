@@ -84,12 +84,12 @@ jobs:
       - name: Zip Release Asset
         run: |
           cd release/v${{ steps.check_version.outputs.version }}
-          zip -r ../../confluence-v${{ steps.check_version.outputs.version }}.zip .
+          zip -r ../../arc-v${{ steps.check_version.outputs.version }}.zip .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.check_version.outputs.version }}
           name: v${{ steps.check_version.outputs.version }}
-          files: confluence-v${{ steps.check_version.outputs.version }}.zip
+          files: arc-v${{ steps.check_version.outputs.version }}.zip
           generate_release_notes: true
