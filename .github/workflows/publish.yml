@@ -1,0 +1,90 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '**'
+
+permissions:
+  contents: write
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Lint
+        run: pnpm lint
+
+  build:
+    needs: lint
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check if version already exists
+        id: check_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if git ls-remote --exit-code --tags origin "v$VERSION" >/dev/null 2>&1; then
+            echo "Error: Version v$VERSION already exists on remote."
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Version v$VERSION is new. Proceeding..."
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Create Version Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag v${{ env.VERSION }}
+          git push origin v${{ env.VERSION }}
+
+      - name: Zip Release Asset
+        run: |
+          cd release/v${{ env.VERSION }}
+          zip -r ../../confluence-v${{ env.VERSION }}.zip .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: v${{ env.VERSION }}
+          files: confluence-v${{ env.VERSION }}.zip
+          generate_release_notes: true
