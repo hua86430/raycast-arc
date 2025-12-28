@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate package-lock.json
+        run: npm install --package-lock-only
+
       - name: Run Lint
         run: pnpm run lint
 
@@ -49,7 +52,7 @@ jobs:
             echo "Error: Version v$VERSION already exists on remote."
             exit 1
           fi
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version v$VERSION is new. Proceeding..."
 
       - name: Setup pnpm
@@ -73,18 +76,18 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag v${{ env.VERSION }}
-          git push origin v${{ env.VERSION }}
+          git tag v${{ steps.check_version.outputs.version }}
+          git push origin v${{ steps.check_version.outputs.version }}
 
       - name: Zip Release Asset
         run: |
-          cd release/v${{ env.VERSION }}
-          zip -r ../../confluence-v${{ env.VERSION }}.zip .
+          cd release/v${{ steps.check_version.outputs.version }}
+          zip -r ../../confluence-v${{ steps.check_version.outputs.version }}.zip .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.VERSION }}
-          name: v${{ env.VERSION }}
-          files: confluence-v${{ env.VERSION }}.zip
+          tag_name: v${{ steps.check_version.outputs.version }}
+          name: v${{ steps.check_version.outputs.version }}
+          files: confluence-v${{ steps.check_version.outputs.version }}.zip
           generate_release_notes: true
