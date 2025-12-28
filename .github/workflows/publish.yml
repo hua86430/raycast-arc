@@ -27,11 +27,11 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
+      - name: Generate package-lock.json
+        run: npm install --package-lock-only --legacy-peer-deps
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Generate package-lock.json
-        run: npm install --package-lock-only
 
       - name: Run Lint
         run: pnpm run lint
